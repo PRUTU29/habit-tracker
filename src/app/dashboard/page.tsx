@@ -12,6 +12,15 @@ import {
     PieChart, Pie, Cell
 } from "recharts";
 import { Loader2, Heart, Plus, LogOut, Info, ChevronLeft, ChevronRight, Trash2, Check } from "lucide-react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+
+const FITNESS_QUOTES = [
+    { text: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
+    { text: "We are what we repeatedly do. Excellence then is not an act, but a habit.", author: "Aristotle" },
+    { text: "The hard days are what make you stronger.", author: "Aly Raisman" },
+    { text: "No matter how slow you go, you are still lapping everybody on the couch.", author: "Dan John" }
+];
 
 interface Habit {
     id: string;
@@ -46,6 +55,15 @@ export default function Dashboard() {
     const daysInMonth = getDaysInMonth(currentDate);
     const startDayOfMonth = startOfMonth(currentDate);
     const today = startOfDay(new Date());
+
+    const [quoteIndex, setQuoteIndex] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setQuoteIndex((prev) => (prev + 1) % FITNESS_QUOTES.length);
+        }, 8000);
+        return () => clearInterval(interval);
+    }, []);
 
     const daysArray = useMemo(() => {
         return Array.from({ length: daysInMonth }).map((_, i) => addDays(startDayOfMonth, i));
@@ -216,10 +234,22 @@ export default function Dashboard() {
 
 
     return (
-        <div className="min-h-screen bg-[#383838] text-neutral-200 font-sans p-4 md:p-8 flex flex-col items-center">
+        <div className="min-h-screen bg-[#050505] text-neutral-200 font-sans p-4 md:p-8 flex flex-col items-center relative overflow-hidden">
+
+            {/* Background Images Layer */}
+            <div className="absolute inset-0 z-0 flex justify-between pointer-events-none opacity-40 mix-blend-luminosity">
+                <div className="w-1/3 h-full relative">
+                    <Image src="/images/left.png" alt="Left Background" fill className="object-cover object-left" priority />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#050505]" />
+                </div>
+                <div className="w-1/3 h-full relative">
+                    <Image src="/images/right.png" alt="Right Background" fill className="object-cover object-right" priority />
+                    <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#050505]" />
+                </div>
+            </div>
 
             {/* Sign Out Header */}
-            <div className="w-full max-w-[1400px] flex justify-between items-center mb-6">
+            <div className="w-full max-w-[1400px] flex justify-between items-center mb-6 relative z-10">
                 <div className="flex items-center gap-4 text-sm font-medium text-neutral-400">
                     <span>{user?.user_metadata?.full_name || user?.email}</span>
                 </div>
@@ -228,7 +258,7 @@ export default function Dashboard() {
                 </button>
             </div>
 
-            <div className="w-full max-w-[1400px] bg-[#424242] shadow-2xl rounded-xl overflow-hidden flex flex-col">
+            <div className="w-full max-w-[1400px] bg-[#1a1a1a]/95 backdrop-blur-xl border border-white/5 shadow-2xl rounded-xl overflow-hidden flex flex-col relative z-10">
 
                 {/* TOP SECTION */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6 md:p-8 border-b border-neutral-600">
@@ -302,9 +332,10 @@ export default function Dashboard() {
                             </AreaChart>
                         </ResponsiveContainer>
                         <div className="flex justify-between w-full px-2 text-xs text-neutral-400 mt-2">
-                            <span>Day 1</span>
-                            <span>Day {Math.ceil(daysInMonth / 2)}</span>
-                            <span>Day {daysInMonth}</span>
+                            <span>Week 1</span>
+                            <span>Week 2</span>
+                            <span>Week 3</span>
+                            <span>Week 4</span>
                         </div>
                     </div>
 
@@ -333,7 +364,7 @@ export default function Dashboard() {
                             </div>
                             <div className="flex">
                                 {daysArray.map((day, i) => (
-                                    <div key={i} className="w-[24px] flex flex-col items-center justify-end leading-tight">
+                                    <div key={i} className={`w-[26px] flex flex-col items-center justify-end leading-tight pb-1 pt-2 ${i > 0 && i % 7 === 0 ? 'ml-3' : ''}`}>
                                         <span>{format(day, "d")}</span>
                                         <span>{format(day, "eeeee")}</span>
                                     </div>
@@ -350,7 +381,7 @@ export default function Dashboard() {
                             const progressPct = habit.goal > 0 ? Math.min(Math.round((habitLogs.length / habit.goal) * 100), 100) : 0;
 
                             return (
-                                <div key={habit.id} className="flex items-center mb-1 text-[11px] md:text-xs font-bold font-mono">
+                                <div key={habit.id} className="flex items-center mb-1 text-[11px] md:text-xs font-bold font-mono group/row">
 
                                     {/* Info Column */}
                                     <div className="w-[300px] flex justify-between items-center pr-4 group/habit relative">
@@ -375,16 +406,17 @@ export default function Dashboard() {
                                             const isFuture = isBefore(today, day) && !isSameDay(today, day);
 
                                             return (
-                                                <button
-                                                    key={cIdx}
-                                                    disabled={isFuture}
-                                                    onClick={() => handleToggleLog(habit.id, day)}
-                                                    className={`w-[24px] h-[24px] border border-gray-300 border-dotted m-[1px] flex items-center justify-center transition-all ${isChecked ? 'bg-opacity-100 text-black border-none' : 'bg-transparent text-transparent hover:border-solid hover:border-gray-500'
-                                                        } ${isFuture ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
-                                                    style={{ backgroundColor: isChecked ? habit.color : 'transparent' }}
-                                                >
-                                                    {isChecked ? <Check size={14} className="text-black/70" /> : null}
-                                                </button>
+                                                <div key={cIdx} className={`w-[26px] h-[26px] flex items-center justify-center ${cIdx > 0 && cIdx % 7 === 0 ? 'ml-3' : ''}`}>
+                                                    <button
+                                                        disabled={isFuture}
+                                                        onClick={() => handleToggleLog(habit.id, day)}
+                                                        className={`w-[22px] h-[22px] border border-gray-300 border-dotted flex items-center justify-center transition-all ${isChecked ? 'bg-opacity-100 text-black border-none shadow-sm' : 'bg-transparent text-transparent hover:border-solid hover:border-gray-500'
+                                                            } ${isFuture ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
+                                                        style={{ backgroundColor: isChecked ? habit.color : 'transparent' }}
+                                                    >
+                                                        {isChecked ? <Check size={14} className="text-black/70" /> : null}
+                                                    </button>
+                                                </div>
                                             );
                                         })}
                                     </div>
@@ -433,17 +465,27 @@ export default function Dashboard() {
 
                         {/* Bottom Row Totals */}
                         <div className="flex items-end mt-12 mb-4 text-[10px] md:text-sm font-bold">
-                            <div className="w-[300px] pr-4 normal-case text-gray-500 font-normal leading-tight text-xs">
-                                In the lines above, in a short but sufficiently descriptive way, write the habits you want to follow.
-                                Also input what are your monthly goals for.
+                            <div className="w-[300px] pr-4 normal-case font-normal leading-tight text-xs flex flex-col justify-end">
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={quoteIndex}
+                                        initial={{ opacity: 0, y: 5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -5 }}
+                                        transition={{ duration: 0.5 }}
+                                    >
+                                        <div className="italic text-indigo-500 mb-1 leading-relaxed">"{FITNESS_QUOTES[quoteIndex].text}"</div>
+                                        <div className="text-[9px] uppercase font-bold text-neutral-400 tracking-wider">- {FITNESS_QUOTES[quoteIndex].author}</div>
+                                    </motion.div>
+                                </AnimatePresence>
                             </div>
 
                             <div className="flex h-12 items-end">
                                 {chartData.map((d, i) => (
-                                    <div key={i} className="w-[24px] flex flex-col items-center justify-end m-[1px]">
+                                    <div key={i} className={`w-[26px] flex flex-col items-center justify-end pb-1 pt-1 ${i > 0 && i % 7 === 0 ? 'ml-3' : ''}`}>
                                         {d.count > 0 && (
                                             <div
-                                                className="w-[14px] bg-[#2dd4bf] mb-1"
+                                                className="w-[14px] bg-[#2dd4bf] mb-1 rounded-sm"
                                                 style={{ height: `${Math.max(d.count * 4, 4)}px` }}
                                             />
                                         )}
@@ -462,7 +504,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* BOTTOM SECTION: DONUTS */}
-                <div className="bg-[#424242] p-8 mt-auto grid grid-cols-1 md:grid-cols-4 gap-4 items-center justify-items-center">
+                <div className="bg-[#1a1a1a] border-t border-white/5 p-8 mt-auto grid grid-cols-1 md:grid-cols-4 gap-4 items-center justify-items-center">
 
                     <DonutChart value={monthlyProgress} color="#fb7185" label="MONTHLY PROGRESS" />
                     <DonutChart value={normalizedProgress} color="#06b6d4" label="22 DAYS PROGRESS NORMALIZED" />
