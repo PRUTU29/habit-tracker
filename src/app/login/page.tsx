@@ -33,6 +33,7 @@ export default function Login() {
     const [name, setName] = useState("");
     const [dob, setDob] = useState("");
     const [isLogin, setIsLogin] = useState(true);
+    const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +53,14 @@ export default function Login() {
         setError(null);
 
         try {
-            if (isLogin) {
+            if (isForgotPassword) {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/reset-password',
+                });
+                if (error) throw error;
+                alert("If an account exists with this email, a password reset link has been sent.");
+                setIsForgotPassword(false);
+            } else if (isLogin) {
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
                     password,
@@ -169,10 +177,14 @@ export default function Login() {
                 >
                     <div className="mb-10">
                         <h2 className="text-4xl font-black tracking-tight mb-3">
-                            {isLogin ? "Welcome back" : "Start your journey"}
+                            {isForgotPassword ? "Reset Password" : isLogin ? "Welcome back" : "Start your journey"}
                         </h2>
                         <p className="text-neutral-400">
-                            {isLogin ? "Enter your details to sign in to your account and track your progress." : "Create your account and start crushing your goals today."}
+                            {isForgotPassword
+                                ? "Enter your email address to receive a secure password reset link."
+                                : isLogin
+                                    ? "Enter your details to sign in to your account and track your progress."
+                                    : "Create your account and start crushing your goals today."}
                         </p>
                     </div>
 
@@ -189,7 +201,7 @@ export default function Login() {
 
                     <form onSubmit={handleAuth} className="space-y-5">
 
-                        {!isLogin && (
+                        {!isLogin && !isForgotPassword && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
@@ -241,20 +253,33 @@ export default function Login() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Password</label>
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
-                                <input
-                                    type="password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
-                                    placeholder="••••••••"
-                                />
+                        {!isForgotPassword && (
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Password</label>
+                                    {isLogin && (
+                                        <button
+                                            type="button"
+                                            onClick={() => { setIsForgotPassword(true); setError(null); }}
+                                            className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                                        >
+                                            Forgot password?
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="relative group">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
+                                    <input
+                                        type="password"
+                                        required
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <button
                             type="submit"
@@ -265,7 +290,7 @@ export default function Login() {
                                 <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                                 <>
-                                    <span>{isLogin ? "SIGN IN" : "CREATE ACCOUNT"}</span>
+                                    <span>{isForgotPassword ? "SEND RESET LINK" : isLogin ? "SIGN IN" : "CREATE ACCOUNT"}</span>
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </>
                             )}
@@ -273,18 +298,27 @@ export default function Login() {
                     </form>
 
                     <div className="mt-8 text-center">
-                        <p className="text-sm text-neutral-500">
-                            {isLogin ? "Don't have an account?" : "Already crushing it?"}
+                        {isForgotPassword ? (
                             <button
-                                onClick={() => {
-                                    setIsLogin(!isLogin);
-                                    setError(null);
-                                }}
-                                className="ml-2 text-indigo-400 hover:text-indigo-300 font-bold tracking-wide transition-colors"
+                                onClick={() => { setIsForgotPassword(false); setIsLogin(true); setError(null); }}
+                                className="text-sm text-indigo-400 hover:text-indigo-300 font-bold tracking-wide transition-colors"
                             >
-                                {isLogin ? "Sign up" : "Sign in"}
+                                ← Back to Sign in
                             </button>
-                        </p>
+                        ) : (
+                            <p className="text-sm text-neutral-500">
+                                {isLogin ? "Don't have an account?" : "Already crushing it?"}
+                                <button
+                                    onClick={() => {
+                                        setIsLogin(!isLogin);
+                                        setError(null);
+                                    }}
+                                    className="ml-2 text-indigo-400 hover:text-indigo-300 font-bold tracking-wide transition-colors"
+                                >
+                                    {isLogin ? "Sign up" : "Sign in"}
+                                </button>
+                            </p>
+                        )}
                     </div>
                 </motion.div>
             </div>
