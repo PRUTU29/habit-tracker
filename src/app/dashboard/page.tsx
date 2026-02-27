@@ -14,6 +14,7 @@ import {
 import { Loader2, Heart, Plus, LogOut, Info, ChevronLeft, ChevronRight, Trash2, Check } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 
 const FITNESS_QUOTES = [
     { text: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
@@ -57,6 +58,75 @@ export default function Dashboard() {
     const today = startOfDay(new Date());
 
     const [quoteIndex, setQuoteIndex] = useState(0);
+    const [showCelebration, setShowCelebration] = useState<{ message: string, count: number, title: string } | null>(null);
+
+    const playCelebrationSound = () => {
+        try {
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            const ctx = new AudioContext();
+            const playNote = (frequency: number, startTime: number, duration: number) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'triangle';
+                osc.frequency.value = frequency;
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(0.3, startTime + duration * 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            };
+            const now = ctx.currentTime;
+            playNote(523.25, now, 0.4);
+            playNote(659.25, now + 0.15, 0.4);
+            playNote(783.99, now + 0.3, 0.6);
+            playNote(1046.50, now + 0.45, 1.0);
+        } catch (e) { }
+    };
+
+    const triggerConfetti = () => {
+        const duration = 3 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+        function randomInRange(min: number, max: number) { return Math.random() * (max - min) + min; }
+        const interval: any = setInterval(function () {
+            const timeLeft = animationEnd - Date.now();
+            if (timeLeft <= 0) return clearInterval(interval);
+            const particleCount = 50 * (timeLeft / duration);
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+        }, 250);
+    };
+
+    const checkAndCelebrateStreak = (habitId: string, toggledDateStr: string, currentLogs: HabitLog[]) => {
+        const habitLogsSet = new Set(currentLogs.filter(l => l.habit_id === habitId).map(l => l.completed_date));
+        let streakCount = 1;
+        let currentDay = new Date(toggledDateStr);
+        currentDay.setDate(currentDay.getDate() - 1);
+        while (habitLogsSet.has(format(currentDay, "yyyy-MM-dd"))) {
+            streakCount++;
+            currentDay.setDate(currentDay.getDate() - 1);
+        }
+        currentDay = new Date(toggledDateStr);
+        currentDay.setDate(currentDay.getDate() + 1);
+        while (habitLogsSet.has(format(currentDay, "yyyy-MM-dd"))) {
+            streakCount++;
+            currentDay.setDate(currentDay.getDate() + 1);
+        }
+        const habitTitle = habits.find(h => h.id === habitId)?.title || "Habit";
+        const milestones = [5, 10, 15, 20, 25, 30, daysInMonth];
+        if (milestones.includes(streakCount)) {
+            playCelebrationSound();
+            triggerConfetti();
+            setShowCelebration({
+                title: habitTitle,
+                count: streakCount,
+                message: streakCount >= daysInMonth ? "FULL MONTH COMPLETED!" : "INCREDIBLE STREAK!"
+            });
+            setTimeout(() => setShowCelebration(null), 4000);
+        }
+    };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -122,7 +192,12 @@ export default function Dashboard() {
             await supabase.from("habit_logs").delete().eq("id", existingLog.id);
         } else {
             const tempId = `temp-${Date.now()}`;
-            setLogs([...logs, { id: tempId, habit_id: habitId, completed_date: dateStr }]);
+            const newLog = { id: tempId, habit_id: habitId, completed_date: dateStr };
+            const newLogs = [...logs, newLog];
+            setLogs(newLogs);
+
+            // CELEBRATION CHECK
+            checkAndCelebrateStreak(habitId, dateStr, newLogs);
 
             const { data, error } = await supabase
                 .from("habit_logs")
@@ -235,6 +310,24 @@ export default function Dashboard() {
 
     return (
         <div className="min-h-screen bg-[#050505] text-neutral-200 font-sans p-4 md:p-8 flex flex-col items-center relative overflow-hidden">
+
+            {/* Celebration Popup */}
+            <AnimatePresence>
+                {showCelebration && (
+                    <motion.div
+                        initial={{ scale: 0.5, opacity: 0, y: 50 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.8, opacity: 0, y: -50 }}
+                        className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center p-4"
+                    >
+                        <div className="bg-gradient-to-br from-indigo-600 to-purple-800 p-8 rounded-2xl shadow-2xl text-center border-2 border-white/20">
+                            <h2 className="text-6xl font-black text-white mb-2 drop-shadow-lg">{showCelebration.count} DAYS!</h2>
+                            <h3 className="text-2xl font-bold text-yellow-300 mb-4">{showCelebration.message}</h3>
+                            <p className="text-lg text-white/90">You are doing amazing with <strong className="capitalize text-white">{showCelebration.title}</strong>!</p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Background Images Layer */}
             <div className="absolute inset-0 z-0 flex justify-between pointer-events-none opacity-40 mix-blend-luminosity">
