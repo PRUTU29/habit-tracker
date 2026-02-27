@@ -265,6 +265,24 @@ export default function Dashboard() {
         router.replace("/");
     };
 
+    const handleDeleteAccount = async () => {
+        if (!confirm("WARNING: Are you absolutely sure you want to permanently delete your account and all data? This cannot be undone.")) return;
+
+        try {
+            const { error } = await supabase.rpc('delete_user_account');
+            if (error) {
+                console.error("RPC Error:", error);
+                alert("Please make sure you've run the latest setup.sql code in Supabase to enable account deletion.");
+                return;
+            }
+            await supabase.auth.signOut();
+            router.replace("/");
+        } catch (err) {
+            console.error(err);
+            alert("An error occurred while deleting your account.");
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#333] flex items-center justify-center">
@@ -346,9 +364,14 @@ export default function Dashboard() {
                 <div className="flex items-center gap-4 text-sm font-medium text-neutral-400">
                     <span>{user?.user_metadata?.full_name || user?.email}</span>
                 </div>
-                <button onClick={handleSignOut} className="text-neutral-400 hover:text-white flex items-center gap-2 text-sm transition-colors">
-                    <LogOut size={16} /> Sign Out
-                </button>
+                <div className="flex items-center gap-6">
+                    <button onClick={handleDeleteAccount} className="text-neutral-500 hover:text-red-500 flex items-center gap-2 text-sm transition-colors opacity-70 hover:opacity-100">
+                        <Trash2 size={16} /> Delete Account
+                    </button>
+                    <button onClick={handleSignOut} className="text-neutral-400 hover:text-white flex items-center gap-2 text-sm transition-colors">
+                        <LogOut size={16} /> Sign Out
+                    </button>
+                </div>
             </div>
 
             <div className="w-full max-w-[1400px] bg-[#1a1a1a]/95 backdrop-blur-xl border border-white/5 shadow-2xl rounded-xl overflow-hidden flex flex-col relative z-10">
