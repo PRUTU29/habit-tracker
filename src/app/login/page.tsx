@@ -1,19 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Activity, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Activity, Mail, Lock, ArrowRight, Loader2, User, Calendar, Quote } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+
+const FITNESS_QUOTES = [
+    {
+        text: "Discipline is the bridge between goals and accomplishment.",
+        author: "Jim Rohn"
+    },
+    {
+        text: "We are what we repeatedly do. Excellence then is not an act, but a habit.",
+        author: "Aristotle"
+    },
+    {
+        text: "The hard days are what make you stronger.",
+        author: "Aly Raisman"
+    },
+    {
+        text: "No matter how slow you go, you are still lapping everybody on the couch.",
+        author: "Dan John"
+    }
+];
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
+    const [dob, setDob] = useState("");
     const [isLogin, setIsLogin] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const [quoteIndex, setQuoteIndex] = useState(0);
     const router = useRouter();
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setQuoteIndex((prev) => (prev + 1) % FITNESS_QUOTES.length);
+        }, 7000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,115 +63,232 @@ export default function Login() {
                 const { error } = await supabase.auth.signUp({
                     email,
                     password,
+                    options: {
+                        data: {
+                            full_name: name,
+                            dob: dob,
+                        }
+                    }
                 });
                 if (error) throw error;
-                // Optional: show a message to check email, or redirect
                 alert("Success! Please check your email for the confirmation link.");
             }
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError((err as Error).message);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center relative overflow-hidden px-4">
-            {/* Background Orbs */}
-            <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] opacity-70 pointer-events-none" />
-            <div className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] opacity-60 pointer-events-none" />
+        <div className="min-h-screen bg-[#050505] text-foreground flex relative overflow-hidden">
 
-            <Link href="/" className="absolute top-8 left-8 flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                    <Activity className="text-white w-4 h-4" />
-                </div>
-                <span className="font-bold tracking-tight">Antigravity Tracker</span>
-            </Link>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="w-full max-w-md glass-panel rounded-3xl p-8 z-10"
-            >
-                <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold tracking-tight mb-2">
-                        {isLogin ? "Welcome back" : "Create an account"}
-                    </h2>
-                    <p className="text-neutral-400 text-sm">
-                        {isLogin ? "Enter your details to sign in to your account" : "Enter your details to create your account"}
-                    </p>
+            {/* LEFT SIDE: Image & Quote Showcase */}
+            <div className="hidden lg:flex flex-col flex-1 relative bg-black border-r border-white/5 overflow-hidden">
+                {/* The Premium AI Image */}
+                <div className="absolute inset-0 z-0">
+                    <Image
+                        src="/images/fitness.png"
+                        alt="Fitness Motivation"
+                        fill
+                        className="object-cover opacity-60 mix-blend-luminosity scale-[1.02] transform transition-transform duration-[20s] hover:scale-105"
+                        priority
+                    />
+                    {/* Gradients to blend the image seamlessly into the right side */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#050505]" />
+                    <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
                 </div>
 
-                {error && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
-                    >
-                        {error}
-                    </motion.div>
-                )}
+                <div className="relative z-10 p-12 flex flex-col h-full justify-between">
+                    <Link href="/" className="flex items-center gap-3 w-fit group">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+                            <Activity className="text-white w-6 h-6" />
+                        </div>
+                        <span className="text-xl font-bold tracking-tight text-white group-hover:text-indigo-300 transition-colors">Antigravity Tracker</span>
+                    </Link>
 
-                <form onSubmit={handleAuth} className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-neutral-300">Email</label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-                            <input
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                                placeholder="you@example.com"
-                            />
+                    {/* Rotating Quotes */}
+                    <div className="max-w-xl pb-12">
+                        <Quote className="w-12 h-12 text-indigo-500/50 mb-6" />
+                        <div className="h-32 relative">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={quoteIndex}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="absolute inset-0"
+                                >
+                                    <p className="text-3xl font-black text-white leading-tight mb-4">
+                                        "{FITNESS_QUOTES[quoteIndex].text}"
+                                    </p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-[1px] w-8 bg-indigo-500" />
+                                        <p className="text-indigo-300 font-semibold tracking-widest uppercase text-sm">
+                                            {FITNESS_QUOTES[quoteIndex].author}
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Dots */}
+                        <div className="flex gap-2 mt-8">
+                            {FITNESS_QUOTES.map((_, i) => (
+                                <div
+                                    key={i}
+                                    className={`w-2 h-2 rounded-full transition-all duration-500 ${i === quoteIndex ? 'w-8 bg-indigo-500' : 'bg-white/20'}`}
+                                />
+                            ))}
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-neutral-300">Password</label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                                placeholder="••••••••"
-                            />
-                        </div>
+            {/* RIGHT SIDE: Auth Form */}
+            <div className="flex-1 flex flex-col justify-center items-center px-6 lg:px-12 relative z-10">
+
+                {/* Mobile Logo Logo */}
+                <Link href="/" className="lg:hidden absolute top-8 left-8 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <Activity className="text-white w-4 h-4" />
+                    </div>
+                    <span className="font-bold tracking-tight">Antigravity Tracker</span>
+                </Link>
+
+                {/* Animated Background Glow specifically for the form */}
+                <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none" />
+
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="w-full max-w-md relative"
+                >
+                    <div className="mb-10">
+                        <h2 className="text-4xl font-black tracking-tight mb-3">
+                            {isLogin ? "Welcome back" : "Start your journey"}
+                        </h2>
+                        <p className="text-neutral-400">
+                            {isLogin ? "Enter your details to sign in to your account and track your progress." : "Create your account and start crushing your goals today."}
+                        </p>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2 group disabled:opacity-70"
-                    >
-                        {loading ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                            <>
-                                <span>{isLogin ? "Sign In" : "Sign Up"}</span>
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </>
+                    {error && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2"
+                        >
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                            {error}
+                        </motion.div>
+                    )}
+
+                    <form onSubmit={handleAuth} className="space-y-5">
+
+                        {!isLogin && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="space-y-5"
+                            >
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Full Name</label>
+                                    <div className="relative group">
+                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
+                                        <input
+                                            type="text"
+                                            required={!isLogin}
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
+                                            placeholder="David Goggins"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Date of Birth</label>
+                                    <div className="relative group">
+                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
+                                        <input
+                                            type="date"
+                                            required={!isLogin}
+                                            value={dob}
+                                            onChange={(e) => setDob(e.target.value)}
+                                            className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner [color-scheme:dark]"
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
                         )}
-                    </button>
-                </form>
 
-                <div className="mt-6 text-center">
-                    <button
-                        onClick={() => {
-                            setIsLogin(!isLogin);
-                            setError(null);
-                        }}
-                        className="text-sm text-neutral-400 hover:text-white transition-colors"
-                    >
-                        {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-                    </button>
-                </div>
-            </motion.div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Email Address</label>
+                            <div className="relative group">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
+                                <input
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
+                                    placeholder="you@example.com"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Password</label>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
+                                <input
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-4 mt-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold tracking-wide shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 group disabled:opacity-70 disabled:hover:translate-y-0"
+                        >
+                            {loading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <>
+                                    <span>{isLogin ? "SIGN IN" : "CREATE ACCOUNT"}</span>
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
+                        </button>
+                    </form>
+
+                    <div className="mt-8 text-center">
+                        <p className="text-sm text-neutral-500">
+                            {isLogin ? "Don't have an account?" : "Already crushing it?"}
+                            <button
+                                onClick={() => {
+                                    setIsLogin(!isLogin);
+                                    setError(null);
+                                }}
+                                className="ml-2 text-indigo-400 hover:text-indigo-300 font-bold tracking-wide transition-colors"
+                            >
+                                {isLogin ? "Sign up" : "Sign in"}
+                            </button>
+                        </p>
+                    </div>
+                </motion.div>
+            </div>
+
         </div>
     );
 }

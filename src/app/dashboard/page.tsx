@@ -5,13 +5,13 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import {
     format, getDaysInMonth, startOfMonth, addDays,
-    isBefore, startOfDay, isSameDay
+    isBefore, startOfDay, isSameDay, addMonths, subMonths, setMonth, setYear
 } from "date-fns";
 import {
     AreaChart, Area, ResponsiveContainer,
     PieChart, Pie, Cell
 } from "recharts";
-import { Loader2, Heart, Plus, LogOut, Info } from "lucide-react";
+import { Loader2, Heart, Plus, LogOut, Info, ChevronLeft, ChevronRight, Trash2, Check } from "lucide-react";
 
 interface Habit {
     id: string;
@@ -40,7 +40,7 @@ export default function Dashboard() {
 
     const router = useRouter();
 
-    const currentDate = new Date();
+    const [currentDate, setCurrentDate] = useState(new Date());
     const year = format(currentDate, "yyyy");
     const monthName = format(currentDate, "MMMM");
     const daysInMonth = getDaysInMonth(currentDate);
@@ -58,11 +58,16 @@ export default function Dashboard() {
                 router.replace("/login");
             } else {
                 setUser(session.user);
-                fetchData(session.user.id);
             }
         };
         checkUser();
     }, [router]);
+
+    useEffect(() => {
+        if (user) {
+            fetchData(user.id);
+        }
+    }, [user, currentDate]);
 
     const fetchData = async (userId: string) => {
         // Fetch Habits
@@ -143,6 +148,25 @@ export default function Dashboard() {
         }
     };
 
+    const deleteHabit = async (habitId: string) => {
+        if (!confirm("Are you sure you want to delete this habit and all its history?")) return;
+
+        // Optimistic update
+        const previousHabits = [...habits];
+        setHabits(habits.filter(h => h.id !== habitId));
+
+        const { error } = await supabase.from("habits").delete().eq("id", habitId);
+
+        if (error) {
+            console.error(error);
+            alert("Error deleting habit.");
+            setHabits(previousHabits); // Rollback
+        } else {
+            // Also clean up local logs if we want UI to reflect immediately without full refetch
+            setLogs(logs.filter(l => l.habit_id !== habitId));
+        }
+    };
+
     const handleSignOut = async () => {
         await supabase.auth.signOut();
         router.replace("/");
@@ -197,7 +221,7 @@ export default function Dashboard() {
             {/* Sign Out Header */}
             <div className="w-full max-w-[1400px] flex justify-between items-center mb-6">
                 <div className="flex items-center gap-4 text-sm font-medium text-neutral-400">
-                    <span>{user?.email}</span>
+                    <span>{user?.user_metadata?.full_name || user?.email}</span>
                 </div>
                 <button onClick={handleSignOut} className="text-neutral-400 hover:text-white flex items-center gap-2 text-sm transition-colors">
                     <LogOut size={16} /> Sign Out
@@ -211,13 +235,34 @@ export default function Dashboard() {
 
                     {/* Metadata */}
                     <div className="col-span-3 text-sm font-bold text-neutral-300 space-y-4">
-                        <div className="grid grid-cols-2">
-                            <span className="text-neutral-400">Year:</span>
-                            <span>{year}</span>
-                        </div>
-                        <div className="grid grid-cols-2">
-                            <span className="text-neutral-400">Month:</span>
-                            <span>{monthName}</span>
+                        <div className="flex items-center gap-3 mb-4">
+                            <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="p-1 hover:bg-neutral-600 rounded-full transition-colors text-white">
+                                <ChevronLeft size={20} />
+                            </button>
+                            <select
+                                value={currentDate.getMonth()}
+                                onChange={(e) => setCurrentDate(setMonth(currentDate, parseInt(e.target.value)))}
+                                className="bg-transparent text-xl font-black text-white text-center uppercase appearance-none outline-none cursor-pointer hover:bg-white/10 rounded px-2 py-1 transition-colors"
+                            >
+                                {Array.from({ length: 12 }).map((_, i) => {
+                                    const mDate = new Date(2000, i, 1);
+                                    return <option key={i} value={i} className="text-black uppercase">{format(mDate, "MMMM")}</option>;
+                                })}
+                            </select>
+
+                            <select
+                                value={currentDate.getFullYear()}
+                                onChange={(e) => setCurrentDate(setYear(currentDate, parseInt(e.target.value)))}
+                                className="bg-transparent text-xl font-black text-white text-center uppercase appearance-none outline-none cursor-pointer hover:bg-white/10 rounded px-2 py-1 transition-colors"
+                            >
+                                {Array.from({ length: 10 }).map((_, i) => {
+                                    const y = new Date().getFullYear() - 5 + i;
+                                    return <option key={y} value={y} className="text-black">{y}</option>;
+                                })}
+                            </select>
+                            <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="p-1 hover:bg-neutral-600 rounded-full transition-colors text-white">
+                                <ChevronRight size={20} />
+                            </button>
                         </div>
                         <div className="mt-8 space-y-4">
                             <div className="grid grid-cols-2">
@@ -308,8 +353,17 @@ export default function Dashboard() {
                                 <div key={habit.id} className="flex items-center mb-1 text-[11px] md:text-xs font-bold font-mono">
 
                                     {/* Info Column */}
-                                    <div className="w-[300px] flex justify-between items-center pr-4">
-                                        <span className="capitalize">{habit.title}</span>
+                                    <div className="w-[300px] flex justify-between items-center pr-4 group/habit relative">
+                                        <div className="flex items-center gap-2 max-w-[80%]">
+                                            <button
+                                                onClick={() => deleteHabit(habit.id)}
+                                                className="text-neutral-500 hover:text-red-500 opacity-0 group-hover/habit:opacity-100 transition-opacity p-1"
+                                                title="Delete Habit"
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                            <span className="capitalize truncate" style={{ color: habit.color }}>{habit.title}</span>
+                                        </div>
                                         <span className="mr-2">{habit.goal}</span>
                                     </div>
 
@@ -329,7 +383,7 @@ export default function Dashboard() {
                                                         } ${isFuture ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
                                                     style={{ backgroundColor: isChecked ? habit.color : 'transparent' }}
                                                 >
-                                                    {isChecked ? 'X' : ''}
+                                                    {isChecked ? <Check size={14} className="text-black/70" /> : null}
                                                 </button>
                                             );
                                         })}
