@@ -4,6 +4,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Activity, Sparkles, Plus, CheckCircle2, Zap, Target, Flame, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { Logo } from "@/components/Logo";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -104,8 +105,8 @@ export default function Home() {
           transition={{ duration: 0.6 }}
           className="flex items-center gap-3 backdrop-blur-xl bg-black/40 px-5 py-3 rounded-2xl border border-white/5 shadow-2xl"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)]">
-            <Activity className="text-white w-6 h-6 animate-pulse" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Logo className="w-8 h-8 drop-shadow-[0_0_15px_rgba(192,132,252,0.6)]" />
           </div>
           <span className="text-xl font-bold tracking-tight text-white">Antigravity</span>
         </motion.div>
