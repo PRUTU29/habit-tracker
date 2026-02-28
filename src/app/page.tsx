@@ -41,24 +41,59 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#020202] text-foreground flex flex-col items-center relative overflow-hidden font-sans [perspective:1000px]">
 
-      {/* Animated 3D Background */}
+      {/* Animated 3D Fitness Collage Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
+
+        {/* Dark Overlays to ensure perfect text readability */}
+        <div className="absolute inset-0 bg-[#020202]/85 z-10 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020202] via-transparent to-[#020202] z-10 opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020202] via-transparent to-[#020202] z-10 opacity-90" />
+
+        {/* Dynamic Fitness Image Cards */}
+        <motion.div
+          animate={{ y: [0, -40, 0], opacity: [0.3, 0.4, 0.3], scale: [1, 1.05, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-5%] left-[-5%] w-[45%] h-[60%] rounded-[3rem] overflow-hidden transform rotate-[-5deg] opacity-40 shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5"
+        >
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1000&auto=format&fit=crop')" }} />
+          <div className="absolute inset-0 bg-indigo-900/40 mix-blend-overlay" />
+        </motion.div>
+
+        <motion.div
+          animate={{ y: [0, 40, 0], opacity: [0.2, 0.3, 0.2], scale: [1, 1.03, 1] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[5%] right-[-5%] w-[35%] h-[50%] rounded-[3rem] overflow-hidden transform rotate-[8deg] opacity-30 shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5"
+        >
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1000&auto=format&fit=crop')" }} />
+          <div className="absolute inset-0 bg-purple-900/40 mix-blend-overlay" />
+        </motion.div>
+
+        <motion.div
+          animate={{ y: [0, -30, 0], x: [0, 20, 0], opacity: [0.3, 0.5, 0.3] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[-10%] left-[10%] w-[35%] h-[40%] rounded-[3rem] overflow-hidden transform rotate-[3deg] opacity-50 shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5"
+        >
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop')" }} />
+          <div className="absolute inset-0 bg-pink-900/30 mix-blend-overlay" />
+        </motion.div>
+
+        <motion.div
+          animate={{ y: [0, 50, 0], x: [0, -30, 0], opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[-5%] right-[5%] w-[40%] h-[45%] rounded-[3rem] overflow-hidden transform rotate-[-6deg] opacity-40 shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5"
+        >
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1000&auto=format&fit=crop')" }} />
+          <div className="absolute inset-0 bg-indigo-900/40 mix-blend-overlay" />
+        </motion.div>
+
+        {/* Noise Texture and Glowing Core */}
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] opacity-20 mix-blend-overlay"
+          className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] opacity-20 mix-blend-overlay z-20"
           style={{ backgroundImage: `url('https://grainy-gradients.vercel.app/noise.svg')` }}
         />
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px]"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.5, 1], rotate: [0, -90, 0] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px]"
-        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-600/10 rounded-full blur-[150px] z-10" />
       </div>
 
       {/* Navigation Layer */}
