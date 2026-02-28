@@ -143,15 +143,28 @@ export default function Dashboard() {
     }, [daysInMonth, startDayOfMonth]);
 
     useEffect(() => {
+        // Listen for Supabase processing the URL hash from Google Login
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                setUser(session.user);
+            } else if (event === 'SIGNED_OUT') {
+                router.replace("/login");
+            }
+        });
+
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
+            // Don't bounce them back to login if the hash contains tokens (Google auth callback)
+            if (!session && !window.location.hash.includes("access_token")) {
                 router.replace("/login");
-            } else {
+            } else if (session) {
                 setUser(session.user);
             }
         };
+
         checkUser();
+
+        return () => subscription.unsubscribe();
     }, [router]);
 
     useEffect(() => {
