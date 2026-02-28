@@ -120,7 +120,7 @@ export default function Login() {
                         access_type: 'offline',
                         prompt: 'consent',
                     },
-                    redirectTo: 'https://tracker-ten-azure.vercel.app/dashboard',
+                    redirectTo: 'https://habit-tracker-ten-azure.vercel.app/dashboard',
                 },
             });
             if (error) throw error;
