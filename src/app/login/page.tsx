@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Mail, Lock, ArrowRight, Loader2, User, Calendar, Quote, Phone, MessageSquare } from "lucide-react";
+import { Activity, Mail, Lock, ArrowRight, Loader2, User, Calendar, Quote } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -29,15 +29,11 @@ const FITNESS_QUOTES = [
 
 export default function Login() {
     const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-    const [otp, setOtp] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [dob, setDob] = useState("");
     const [isLogin, setIsLogin] = useState(true);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
-    const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
-    const [isOtpSent, setIsOtpSent] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -57,58 +53,33 @@ export default function Login() {
         setError(null);
 
         try {
-            if (authMethod === 'phone') {
-                if (isOtpSent) {
-                    const { error } = await supabase.auth.verifyOtp({
-                        phone,
-                        token: otp,
-                        type: 'sms'
-                    });
-                    if (error) throw error;
-                    router.push("/dashboard");
-                } else {
-                    const { error } = await supabase.auth.signInWithOtp({
-                        phone,
-                        options: !isLogin ? {
-                            data: {
-                                full_name: name,
-                                dob: dob,
-                            }
-                        } : undefined
-                    });
-                    if (error) throw error;
-                    setIsOtpSent(true);
-                    alert("Success! Check your phone messages for the OTP code.");
-                }
+            if (isForgotPassword) {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/reset-password',
+                });
+                if (error) throw error;
+                alert("If an account exists with this email, a password reset link has been sent.");
+                setIsForgotPassword(false);
+            } else if (isLogin) {
+                const { error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+                if (error) throw error;
+                router.push("/dashboard");
             } else {
-                if (isForgotPassword) {
-                    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                        redirectTo: window.location.origin + '/reset-password',
-                    });
-                    if (error) throw error;
-                    alert("If an account exists with this email, a password reset link has been sent.");
-                    setIsForgotPassword(false);
-                } else if (isLogin) {
-                    const { error } = await supabase.auth.signInWithPassword({
-                        email,
-                        password,
-                    });
-                    if (error) throw error;
-                    router.push("/dashboard");
-                } else {
-                    const { error } = await supabase.auth.signUp({
-                        email,
-                        password,
-                        options: {
-                            data: {
-                                full_name: name,
-                                dob: dob,
-                            }
+                const { error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: name,
+                            dob: dob,
                         }
-                    });
-                    if (error) throw error;
-                    alert("Success! Please check your email for the confirmation link.");
-                }
+                    }
+                });
+                if (error) throw error;
+                alert("Success! Please check your email for the confirmation link.");
             }
         } catch (err) {
             setError((err as Error).message);
@@ -249,7 +220,7 @@ export default function Login() {
                         </motion.div>
                     )}
 
-                    {!isForgotPassword && !isOtpSent && (
+                    {!isForgotPassword && (
                         <div className="mb-6 space-y-4">
                             <button
                                 onClick={handleGoogleLogin}
@@ -277,27 +248,7 @@ export default function Login() {
 
                     <form onSubmit={handleAuth} className="space-y-5">
 
-                        {/* AUTHENTICATION TAB SELECTOR */}
-                        {!isForgotPassword && !isOtpSent && (
-                            <div className="flex gap-4 mb-4">
-                                <button
-                                    type="button"
-                                    onClick={() => { setAuthMethod('email'); setError(null); }}
-                                    className={`flex-1 py-3 text-xs tracking-wider uppercase font-bold border-b-2 transition-colors ${authMethod === 'email' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-neutral-600 hover:text-neutral-400'}`}
-                                >
-                                    Email
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => { setAuthMethod('phone'); setError(null); }}
-                                    className={`flex-1 py-3 text-xs tracking-wider uppercase font-bold border-b-2 transition-colors ${authMethod === 'phone' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-neutral-600 hover:text-neutral-400'}`}
-                                >
-                                    Phone Number
-                                </button>
-                            </div>
-                        )}
-
-                        {!isLogin && !isForgotPassword && !isOtpSent && (
+                        {!isLogin && !isForgotPassword && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
@@ -334,87 +285,47 @@ export default function Login() {
                             </motion.div>
                         )}
 
-                        {/* EMAIL OR PHONE INPUTS */}
-                        {!isOtpSent && authMethod === 'email' && (
-                            <div className="space-y-5">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Email Address</label>
-                                    <div className="relative group">
-                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
-                                        <input
-                                            type="email"
-                                            required
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
-                                            placeholder="you@example.com"
-                                        />
-                                    </div>
-                                </div>
-
-                                {!isForgotPassword && (
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center">
-                                            <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Password</label>
-                                            {isLogin && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => { setIsForgotPassword(true); setError(null); }}
-                                                    className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
-                                                >
-                                                    Forgot password?
-                                                </button>
-                                            )}
-                                        </div>
-                                        <div className="relative group">
-                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
-                                            <input
-                                                type="password"
-                                                required
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
-                                                placeholder="••••••••"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Email Address</label>
+                            <div className="relative group">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
+                                <input
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
+                                    placeholder="you@example.com"
+                                />
                             </div>
-                        )}
+                        </div>
 
-                        {!isOtpSent && authMethod === 'phone' && (
+                        {!isForgotPassword && (
                             <div className="space-y-2">
-                                <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Phone Number</label>
+                                <div className="flex justify-between items-center">
+                                    <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Password</label>
+                                    {isLogin && (
+                                        <button
+                                            type="button"
+                                            onClick={() => { setIsForgotPassword(true); setError(null); }}
+                                            className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                                        >
+                                            Forgot password?
+                                        </button>
+                                    )}
+                                </div>
                                 <div className="relative group">
-                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
                                     <input
-                                        type="tel"
+                                        type="password"
                                         required
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
                                         className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
-                                        placeholder="+1234567890"
+                                        placeholder="••••••••"
                                     />
                                 </div>
-                                <p className="text-xs text-neutral-500 mt-2">Make sure to include your country code (e.g. +1).</p>
                             </div>
-                        )}
-
-                        {isOtpSent && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
-                                <label className="text-xs font-bold tracking-wider text-neutral-400 uppercase">Enter OTP Code</label>
-                                <div className="relative group">
-                                    <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" />
-                                    <input
-                                        type="text"
-                                        required
-                                        value={otp}
-                                        onChange={(e) => setOtp(e.target.value)}
-                                        className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white text-center tracking-widest text-xl font-mono placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
-                                        placeholder="000000"
-                                    />
-                                </div>
-                            </motion.div>
                         )}
 
                         <button
@@ -426,7 +337,7 @@ export default function Login() {
                                 <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                                 <>
-                                    <span>{isOtpSent ? "VERIFY OTP" : isForgotPassword ? "SEND RESET LINK" : authMethod === 'phone' ? "SEND OTP" : isLogin ? "SIGN IN" : "CREATE ACCOUNT"}</span>
+                                    <span>{isForgotPassword ? "SEND RESET LINK" : isLogin ? "SIGN IN" : "CREATE ACCOUNT"}</span>
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </>
                             )}
@@ -434,14 +345,7 @@ export default function Login() {
                     </form>
 
                     <div className="mt-8 text-center">
-                        {isOtpSent ? (
-                            <button
-                                onClick={() => { setIsOtpSent(false); setOtp(""); setError(null); }}
-                                className="text-sm text-indigo-400 hover:text-indigo-300 font-bold tracking-wide transition-colors"
-                            >
-                                ← Back to Phone number
-                            </button>
-                        ) : isForgotPassword ? (
+                        {isForgotPassword ? (
                             <button
                                 onClick={() => { setIsForgotPassword(false); setIsLogin(true); setError(null); }}
                                 className="text-sm text-indigo-400 hover:text-indigo-300 font-bold tracking-wide transition-colors"
