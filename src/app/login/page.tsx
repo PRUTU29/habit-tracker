@@ -112,6 +112,7 @@ export default function Login() {
         setLoading(true);
         setError(null);
         try {
+            // explicitly route the callback to the production Vercel url to handle external network access
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
@@ -119,7 +120,7 @@ export default function Login() {
                         access_type: 'offline',
                         prompt: 'consent',
                     },
-                    redirectTo: window.location.origin + '/dashboard',
+                    redirectTo: 'https://tracker-ten-azure.vercel.app/dashboard',
                 },
             });
             if (error) throw error;
