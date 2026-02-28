@@ -11,7 +11,7 @@ import {
     AreaChart, Area, ResponsiveContainer,
     PieChart, Pie, Cell
 } from "recharts";
-import { Loader2, Heart, Plus, LogOut, Info, ChevronLeft, ChevronRight, Trash2, Check } from "lucide-react";
+import { Loader2, Heart, Plus, LogOut, Info, ChevronLeft, ChevronRight, Trash2, Check, Menu, X } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -59,6 +59,9 @@ export default function Dashboard() {
 
     const [quoteIndex, setQuoteIndex] = useState(0);
     const [showCelebration, setShowCelebration] = useState<{ message: string, count: number, title: string } | null>(null);
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isAboutOpen, setIsAboutOpen] = useState(false);
 
     const playCelebrationSound = () => {
         try {
@@ -359,18 +362,90 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Sign Out Header */}
-            <div className="w-full max-w-[1400px] flex justify-between items-center mb-6 relative z-10">
+            {/* About Modal */}
+            <AnimatePresence>
+                {isAboutOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-[#1a1a1a] border border-white/10 p-8 rounded-2xl max-w-md w-full shadow-2xl relative"
+                        >
+                            <button onClick={() => setIsAboutOpen(false)} className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors">
+                                <X size={20} />
+                            </button>
+                            <h2 className="text-2xl font-black mb-4 flex items-center gap-3">
+                                <Info className="text-indigo-400" /> About Antigravity Tracker
+                            </h2>
+                            <p className="text-neutral-300 mb-4 leading-relaxed">
+                                Antigravity Tracker is a premium, performance-focused habit tracking application built to help you establish and maintain discipline.
+                            </p>
+                            <p className="text-neutral-300 mb-6 leading-relaxed">
+                                Developed with a dynamic user experience in mind, it celebrates your milestones and provides a serene yet powerful environment for your daily goals.
+                            </p>
+                            <div className="text-sm text-neutral-500 border-t border-white/10 pt-4 mt-6 flex justify-between">
+                                <span>Version 1.0.0</span>
+                                <span>Built with Next.js & Supabase</span>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Header with Hamburger Menu */}
+            <div className="w-full max-w-[1400px] flex justify-between items-center mb-6 relative z-50">
                 <div className="flex items-center gap-4 text-sm font-medium text-neutral-400">
                     <span>{user?.user_metadata?.full_name || user?.email}</span>
                 </div>
-                <div className="flex items-center gap-6">
-                    <button onClick={handleDeleteAccount} className="text-neutral-500 hover:text-red-500 flex items-center gap-2 text-sm transition-colors opacity-70 hover:opacity-100">
-                        <Trash2 size={16} /> Delete Account
+
+                <div className="relative">
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/5 text-neutral-300"
+                    >
+                        <Menu size={20} />
                     </button>
-                    <button onClick={handleSignOut} className="text-neutral-400 hover:text-white flex items-center gap-2 text-sm transition-colors">
-                        <LogOut size={16} /> Sign Out
-                    </button>
+
+                    <AnimatePresence>
+                        {isMenuOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute right-0 mt-3 w-56 bg-[#1a1a1a] border border-white/10 shadow-2xl rounded-xl overflow-hidden backdrop-blur-xl"
+                            >
+                                <div className="py-2">
+                                    <button
+                                        onClick={() => { setIsMenuOpen(false); setIsAboutOpen(true); }}
+                                        className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-white/5 transition-colors flex items-center gap-3"
+                                    >
+                                        <Info size={16} /> About the app
+                                    </button>
+                                    <div className="h-px bg-white/5 my-1" />
+                                    <button
+                                        onClick={() => { setIsMenuOpen(false); handleDeleteAccount(); }}
+                                        className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-3"
+                                    >
+                                        <Trash2 size={16} /> Delete Account
+                                    </button>
+                                    <div className="h-px bg-white/5 my-1" />
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-white/5 transition-colors flex items-center gap-3"
+                                    >
+                                        <LogOut size={16} /> Sign Out
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
 
