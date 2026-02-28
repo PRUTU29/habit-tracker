@@ -41,11 +41,31 @@ export default function Login() {
     const router = useRouter();
 
     useEffect(() => {
+        // Automatically route to dashboard if they are already logged in or returning from Google OAuth
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session || window.location.hash.includes("access_token")) {
+                router.replace("/dashboard");
+            }
+        });
+
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session || window.location.hash.includes("access_token")) {
+                router.replace("/dashboard");
+            }
+        };
+
+        checkSession();
+
         const interval = setInterval(() => {
             setQuoteIndex((prev) => (prev + 1) % FITNESS_QUOTES.length);
         }, 7000);
-        return () => clearInterval(interval);
-    }, []);
+
+        return () => {
+            clearInterval(interval);
+            subscription.unsubscribe();
+        };
+    }, [router]);
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
