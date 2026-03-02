@@ -5,6 +5,40 @@ import { Activity, Sparkles, Plus, CheckCircle2, Zap, Target, Flame, ChevronRigh
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
+import { CardStack, CardStackItem } from "@/components/ui/card-stack";
+
+const cardStackItems: CardStackItem[] = [
+  {
+    id: 1,
+    title: "Deep Focus Mastery",
+    description: "Achieve uninterrupted flow state routines.",
+    imageSrc: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: 2,
+    title: "Shatter Limits",
+    description: "Push your physical limits and build unyielding discipline.",
+    imageSrc: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: 3,
+    title: "Elite Tracking",
+    description: "Visualize your momentum and shatter your records.",
+    imageSrc: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: 4,
+    title: "Hydration Protocol",
+    description: "Fuel your biological machine for peak performance.",
+    imageSrc: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: 5,
+    title: "Zero-Gravity Recovery",
+    description: "Center your mind and obliterate stress before the day begins.",
+    imageSrc: "https://images.unsplash.com/photo-1554284126-aa88f2247b97?q=80&w=1000&auto=format&fit=crop",
+  },
+];
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -286,6 +320,35 @@ export default function Home() {
               ))}
             </div>
           </motion.div>
+        </motion.div>
+
+        {/* Feature Highlights Card Stack */}
+        <motion.div
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.2, type: "spring" }}
+          className="mt-40 mb-24 relative z-30 w-full max-w-5xl flex flex-col items-center text-center"
+        >
+          <div className="mb-16">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+              Master Your Biological Machine
+            </h2>
+            <p className="text-neutral-300 text-lg md:text-xl font-medium tracking-wide max-w-2xl mx-auto shadow-black drop-shadow-md">
+              Unlock the ultimate flow state with automated protocols and stunning visuals.
+            </p>
+          </div>
+
+          <div className="w-full flex justify-center perspective-[2000px]">
+            <CardStack
+              items={cardStackItems}
+              initialIndex={0}
+              autoAdvance
+              intervalMs={3000}
+              pauseOnHover
+              showDots
+            />
+          </div>
         </motion.div>
       </main>
     </div>
