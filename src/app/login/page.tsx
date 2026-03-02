@@ -198,11 +198,11 @@ export default function Login() {
                 </div>
             </div>
             {/* RIGHT SIDE: Auth Form */}
-            <div className="flex-1 flex flex-col justify-center items-center px-6 lg:px-12 relative z-10 overflow-hidden">
+            <div className="flex-1 flex flex-col justify-center items-center px-6 lg:px-12 relative z-10 overflow-hidden bg-[#050505]">
                 <GradientDots
                     duration={20}
                     colorCycleDuration={10}
-                    className="opacity-50 pointer-events-none"
+                    className="pointer-events-none z-0"
                 />
 
                 {/* Mobile Logo Logo */}
