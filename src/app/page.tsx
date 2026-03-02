@@ -8,6 +8,22 @@ import { Logo } from "@/components/Logo";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
+
+  // Interactive Demo State
+  const [demoHabits, setDemoHabits] = useState([
+    { id: 1, name: "Zero-Gravity Meditation", time: "20 mins", done: true, icon: "🧘‍♂️", color: "from-blue-500 to-cyan-500" },
+    { id: 2, name: "Hypertrophy Circuit", time: "1.5 Hours", done: true, icon: "🏋️", color: "from-red-500 to-orange-500" },
+    { id: 3, name: "Deep Code Mode", time: "4 Hours", done: true, icon: "💻", color: "from-indigo-500 to-purple-500" },
+    { id: 4, name: "Hydration Protocol", time: "3 Liters", done: false, icon: "💧", color: "from-sky-400 to-blue-600" },
+  ]);
+
+  const completedCount = demoHabits.filter(h => h.done).length;
+  const completionPercentage = Math.round((completedCount / demoHabits.length) * 100);
+
+  const toggleHabit = (id: number) => {
+    setDemoHabits(prev => prev.map(h => h.id === id ? { ...h, done: !h.done } : h));
+  };
+
   useEffect(() => setMounted(true), []);
 
   // 3D Card Tilt Effect parameters
@@ -230,35 +246,33 @@ export default function Home() {
                 <h3 className="text-3xl md:text-4xl font-black text-white mb-2">Today's Protocol</h3>
                 <p className="text-neutral-400 font-medium tracking-wide shadow-black drop-shadow-md">Sunday, Oct 24th</p>
               </div>
-              <div className="bg-indigo-500/10 border border-indigo-500/20 px-6 py-3 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.2)] mt-4 md:mt-0">
-                <span className="text-indigo-400 font-black text-lg">75% Completion</span>
+              <div className="bg-indigo-500/10 border border-indigo-500/20 px-6 py-3 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.2)] mt-4 md:mt-0 transition-all duration-300">
+                <span className="text-indigo-400 font-black text-lg">{completionPercentage}% Completion</span>
               </div>
             </div>
 
             {/* Depth Level 2 - Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ transform: "translateZ(80px)" }}>
-              {[
-                { name: "Zero-Gravity Meditation", time: "20 mins", done: true, icon: "🧘‍♂️", color: "from-blue-500 to-cyan-500" },
-                { name: "Hypertrophy Circuit", time: "1.5 Hours", done: true, icon: "🏋️", color: "from-red-500 to-orange-500" },
-                { name: "Deep Code Mode", time: "4 Hours", done: true, icon: "💻", color: "from-indigo-500 to-purple-500" },
-                { name: "Hydration Protocol", time: "3 Liters", done: false, icon: "💧", color: "from-sky-400 to-blue-600" },
-              ].map((habit, i) => (
+              {demoHabits.map((habit) => (
                 <motion.div
-                  key={i}
+                  key={habit.id}
+                  onClick={() => toggleHabit(habit.id)}
                   whileHover={{ scale: 1.05, translateZ: 120 }}
-                  className={`relative flex items-center justify-between p-6 rounded-3xl transition-all duration-300 border ${habit.done ? 'bg-white/5 border-white/10 shadow-2xl' : 'bg-black/60 border-white/5 hover:bg-white/10 shadow-lg'}`}
+                  whileTap={{ scale: 0.98 }}
+                  className={`relative flex items-center justify-between p-6 rounded-3xl transition-all duration-300 border cursor-pointer ${habit.done ? 'bg-white/5 border-white/10 shadow-2xl' : 'bg-black/60 border-white/5 hover:bg-white/10 shadow-lg'}`}
                 >
                   <div className="flex items-center gap-5 relative z-10 text-left">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-xl ${habit.done ? `bg-gradient-to-br ${habit.color}` : 'bg-white/5 grayscale opacity-50'}`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-xl transition-all duration-300 ${habit.done ? `bg-gradient-to-br ${habit.color}` : 'bg-white/5 grayscale opacity-50'}`}>
                       {habit.icon}
                     </div>
                     <div>
-                      <h4 className={`text-xl font-bold ${habit.done ? 'text-white' : 'text-neutral-400'}`}>{habit.name}</h4>
+                      <h4 className={`text-xl font-bold transition-colors ${habit.done ? 'text-white' : 'text-neutral-400'}`}>{habit.name}</h4>
                       <span className="text-sm text-neutral-500 font-medium">{habit.time}</span>
                     </div>
                   </div>
                   {habit.done ? (
                     <motion.div
+                      layoutId={`check-${habit.id}`}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center relative z-10 shadow-[0_0_20px_rgba(52,211,153,0.4)]"
