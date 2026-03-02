@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Mail, Lock, ArrowRight, Loader2, User, Calendar, Quote } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { GradientDots } from "@/components/ui/gradient-dots";
 
 const FITNESS_QUOTES = [
     {
@@ -198,15 +197,10 @@ export default function Login() {
                 </div>
             </div>
             {/* RIGHT SIDE: Auth Form */}
-            <div className="flex-1 flex flex-col justify-center items-center px-6 lg:px-12 relative z-10 overflow-hidden bg-[#050505]">
-                <GradientDots
-                    duration={20}
-                    colorCycleDuration={10}
-                    className="pointer-events-none z-0"
-                />
+            <div className="flex-1 flex flex-col justify-center items-center px-6 lg:px-12 relative z-10">
 
                 {/* Mobile Logo Logo */}
-                <Link href="/" className="lg:hidden absolute top-8 left-8 flex items-center gap-3 z-20">
+                <Link href="/" className="lg:hidden absolute top-8 left-8 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                         <Activity className="text-white w-4 h-4" />
                     </div>
