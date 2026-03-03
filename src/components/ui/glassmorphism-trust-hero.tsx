@@ -13,6 +13,7 @@ import {
     Trophy
 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 // --- MOCK INTEGRATIONS / FEATURES ---
 const INTEGRATIONS = [
@@ -84,7 +85,7 @@ export default function HeroSection() {
                         <div className="animate-fade-in delay-100">
                             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 backdrop-blur-md transition-colors hover:bg-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
                                 <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-indigo-200 flex items-center gap-2">
-                                    <Activity className="w-3.5 h-3.5 text-indigo-400" />
+                                    <Logo className="w-4 h-4" />
                                     Next-Generation Habit Engine
                                 </span>
                             </div>

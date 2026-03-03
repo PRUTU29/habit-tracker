@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Mail, Lock, ArrowRight, Loader2, User, Calendar, Quote } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { Logo } from "@/components/Logo";
 
 const FITNESS_QUOTES = [
     {
@@ -153,7 +154,7 @@ export default function Login() {
                 <div className="relative z-10 p-12 flex flex-col h-full justify-between">
                     <Link href="/" className="flex items-center gap-3 w-fit group">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-                            <Activity className="text-white w-6 h-6" />
+                            <Logo className="w-6 h-6" />
                         </div>
                         <span className="text-xl font-bold tracking-tight text-white group-hover:text-indigo-300 transition-colors">Antigravity Tracker</span>
                     </Link>
@@ -202,7 +203,7 @@ export default function Login() {
                 {/* Mobile Logo Logo */}
                 <Link href="/" className="lg:hidden absolute top-8 left-8 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                        <Activity className="text-white w-4 h-4" />
+                        <Logo className="w-4 h-4" />
                     </div>
                     <span className="font-bold tracking-tight">Antigravity Tracker</span>
                 </Link>
