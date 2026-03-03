@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { CardStack, CardStackItem } from "@/components/ui/card-stack";
+import GlassmorphismTrustHero from "@/components/ui/glassmorphism-trust-hero";
 
 const cardStackItems: CardStackItem[] = [
   {
@@ -141,81 +142,10 @@ export default function Home() {
         </motion.div>
       </nav>
 
-      {/* 3D Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-6xl px-6 py-12 z-10 text-center relative">
+      {/* Premium Glassmorphism Hero Section */}
+      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-4 md:px-6 pt-6 pb-24 z-10 relative">
 
-        {/* Floating 3D Component: Focus */}
-        <motion.div
-          animate={{ y: [-20, 20, -20], rotateX: [0, 20, 0], rotateY: [0, -20, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute left-0 lg:left-10 top-20 glass-panel p-4 rounded-2xl hidden md:flex items-center gap-3 shadow-2xl border border-indigo-500/30"
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center">
-            <Target className="w-6 h-6 text-indigo-400" />
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-bold text-white">Focus Factor</p>
-            <p className="text-xs text-neutral-400">Deep Work Protocol</p>
-          </div>
-        </motion.div>
-
-        {/* Floating 3D Component: Streak */}
-        <motion.div
-          animate={{ y: [20, -20, 20], rotateX: [0, -20, 0], rotateY: [0, 20, 0] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute right-0 lg:right-10 top-40 glass-panel p-4 rounded-2xl hidden md:flex items-center gap-3 shadow-2xl border border-orange-500/30"
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
-            <Flame className="w-6 h-6 text-orange-400" />
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-bold text-white">45 Days</p>
-            <p className="text-xs text-neutral-400">Current Streak</p>
-          </div>
-        </motion.div>
-
-        {/* Hero Text */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 40 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-          className="max-w-4xl space-y-8 relative z-20"
-        >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-sm text-indigo-300 font-bold mb-4 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
-          >
-            <Sparkles className="w-4 h-4 animate-pulse" />
-            <span>Next-Generation Habit Engine</span>
-          </motion.div>
-
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-[1] text-white drop-shadow-2xl">
-            Escape the <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 inline-block drop-shadow-md">
-              gravity
-            </span> of <br /> procrastination.
-          </h1>
-
-          <p className="text-xl md:text-2xl text-neutral-400 max-w-2xl mx-auto leading-relaxed font-medium">
-            A premium, ultra-responsive tracker for the elite 1%. Build routines, shatter limits, and watch your discipline compound.
-          </p>
-
-          <div className="pt-8 flex justify-center gap-6">
-            <Link href="/dashboard">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="group relative px-8 py-4 md:px-10 md:py-5 rounded-2xl bg-white text-black font-black text-lg md:text-xl overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all flex items-center gap-4"
-              >
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-                <span className="relative z-10 tracking-wide uppercase">Ignite Your Potential</span>
-                <Zap className="relative z-10 w-6 h-6 group-hover:translate-x-1 transition-transform group-hover:text-indigo-600" />
-              </motion.button>
-            </Link>
-          </div>
-        </motion.div>
+        <GlassmorphismTrustHero />
 
         {/* 3D Interactive Demo Dashboard Viewport */}
         <motion.div
