@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Activity, Sparkles, Plus, CheckCircle2, Zap, Target, Flame, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -9,6 +9,9 @@ import { CardStack, CardStackItem } from "@/components/ui/card-stack";
 import GlassmorphismTrustHero from "@/components/ui/glassmorphism-trust-hero";
 import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import { GradientButton } from "@/components/ui/gradient-button";
+import { SplineScene } from "@/components/ui/splite";
+import { Card } from "@/components/ui/card";
+import { Spotlight } from "@/components/ui/spotlight";
 
 const cardStackItems: CardStackItem[] = [
   {
@@ -46,49 +49,9 @@ const cardStackItems: CardStackItem[] = [
 export default function Home() {
   const [mounted, setMounted] = useState(false);
 
-  // Interactive Demo State
-  const [demoHabits, setDemoHabits] = useState([
-    { id: 1, name: "Zero-Gravity Meditation", time: "20 mins", done: true, icon: "🧘‍♂️", color: "from-blue-500 to-cyan-500" },
-    { id: 2, name: "Hypertrophy Circuit", time: "1.5 Hours", done: true, icon: "🏋️", color: "from-red-500 to-orange-500" },
-    { id: 3, name: "Deep Code Mode", time: "4 Hours", done: true, icon: "💻", color: "from-indigo-500 to-purple-500" },
-    { id: 4, name: "Hydration Protocol", time: "3 Liters", done: false, icon: "💧", color: "from-sky-400 to-blue-600" },
-  ]);
-
-  const completedCount = demoHabits.filter(h => h.done).length;
-  const completionPercentage = Math.round((completedCount / demoHabits.length) * 100);
-
-  const toggleHabit = (id: number) => {
-    setDemoHabits(prev => prev.map(h => h.id === id ? { ...h, done: !h.done } : h));
-  };
-
   useEffect(() => setMounted(true), []);
 
-  // 3D Card Tilt Effect parameters
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
 
-  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
-  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["17.5deg", "-17.5deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
 
   if (!mounted) return null;
 
@@ -151,76 +114,55 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-4 md:px-6 pt-6 pb-24 z-10 relative">
 
-        {/* 3D Interactive Demo Dashboard Viewport */}
-        <motion.div
-          id="demo"
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.4, type: "spring" }}
-          className="mt-24 relative z-30 w-full max-w-5xl [perspective:2000px]"
-        >
-          <motion.div
-            style={{
-              x,
-              y,
-              rotateX,
-              rotateY,
-              transformStyle: "preserve-3d",
-            }}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            className="w-full rounded-[2.5rem] p-6 md:p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/10 bg-[#111111]/80 backdrop-blur-2xl relative cursor-crosshair transition-colors duration-500 hover:border-indigo-500/50"
-          >
-            {/* 3D Floating Screen Reflection */}
-            <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-tr from-white/10 to-transparent opacity-30 pointer-events-none" style={{ transform: "translateZ(1px)" }} />
+        {/* Spline Interactive 3D Demo Section */}
+        <div id="demo" className="mt-24 relative z-30 w-full max-w-6xl">
+          <Card className="w-full h-[600px] md:h-[700px] bg-black/40 backdrop-blur-2xl border-white/10 relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] rounded-[2.5rem]">
+            <Spotlight
+              className="-top-40 left-0 md:left-60 md:-top-20"
+            />
 
-            {/* Depth Level 1 */}
-            <div className="flex flex-col md:flex-row items-start justify-between mb-10 border-b border-white/5 pb-8" style={{ transform: "translateZ(40px)" }}>
-              <div className="text-left">
-                <h3 className="text-3xl md:text-4xl font-black text-white mb-2">Today's Protocol</h3>
-                <p className="text-neutral-400 font-medium tracking-wide shadow-black drop-shadow-md">Sunday, Oct 24th</p>
-              </div>
-              <div className="bg-indigo-500/10 border border-indigo-500/20 px-6 py-3 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.2)] mt-4 md:mt-0 transition-all duration-300">
-                <span className="text-indigo-400 font-black text-lg">{completionPercentage}% Completion</span>
-              </div>
-            </div>
-
-            {/* Depth Level 2 - Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ transform: "translateZ(80px)" }}>
-              {demoHabits.map((habit) => (
+            <div className="flex flex-col md:flex-row h-full">
+              {/* Left content */}
+              <div className="flex-1 p-8 md:p-16 relative z-10 flex flex-col justify-center">
                 <motion.div
-                  key={habit.id}
-                  onClick={() => toggleHabit(habit.id)}
-                  whileHover={{ scale: 1.05, translateZ: 120 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`relative flex items-center justify-between p-6 rounded-3xl transition-all duration-300 border cursor-pointer ${habit.done ? 'bg-white/5 border-white/10 shadow-2xl' : 'bg-black/60 border-white/5 hover:bg-white/10 shadow-lg'}`}
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
                 >
-                  <div className="flex items-center gap-5 relative z-10 text-left">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-xl transition-all duration-300 ${habit.done ? `bg-gradient-to-br ${habit.color}` : 'bg-white/5 grayscale opacity-50'}`}>
-                      {habit.icon}
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-200 to-indigo-600 mb-6 drop-shadow-sm">
+                    Interactive <br />3D Tracking
+                  </h2>
+                  <p className="text-lg md:text-xl text-neutral-400 font-medium leading-relaxed max-w-lg mb-8">
+                    Bring your discipline to life. Spin, zoom, and interact with the Antigravity core
+                    to unlock immersive analytics and elite flow-state tracking.
+                  </p>
+
+                  <div className="flex gap-4 items-center">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                      <Zap className="w-6 h-6 text-indigo-400" />
                     </div>
-                    <div>
-                      <h4 className={`text-xl font-bold transition-colors ${habit.done ? 'text-white' : 'text-neutral-400'}`}>{habit.name}</h4>
-                      <span className="text-sm text-neutral-500 font-medium">{habit.time}</span>
+                    <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/20 flex items-center justify-center border border-fuchsia-500/30">
+                      <Activity className="w-6 h-6 text-fuchsia-400" />
                     </div>
                   </div>
-                  {habit.done ? (
-                    <motion.div
-                      layoutId={`check-${habit.id}`}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center relative z-10 shadow-[0_0_20px_rgba(52,211,153,0.4)]"
-                    >
-                      <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-                    </motion.div>
-                  ) : (
-                    <div className="w-10 h-10 rounded-full border-2 border-dashed border-white/20 relative z-10 hover:border-white/50 transition-colors" />
-                  )}
                 </motion.div>
-              ))}
+              </div>
+
+              {/* Right content - Spline 3D Scene */}
+              <div className="flex-1 relative cursor-grab active:cursor-grabbing min-h-[400px] md:min-h-full">
+                {/* 
+                  Using a dark aesthetic abstract spline cube / geometry that fits the theme. 
+                  Users can swap this URL with their own exported scene.splinecode! 
+                */}
+                <SplineScene
+                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </Card>
+        </div>
 
         {/* Feature Highlights Card Stack */}
         <motion.div
