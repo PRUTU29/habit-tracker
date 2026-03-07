@@ -131,20 +131,33 @@ export default function Home() {
                   transition={{ duration: 0.8 }}
                 >
                   <h2 className="text-4xl md:text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-200 to-indigo-600 mb-6 drop-shadow-sm">
-                    Interactive <br />3D Tracking
+                    Visualize <br />Your Habits
                   </h2>
                   <p className="text-lg md:text-xl text-neutral-400 font-medium leading-relaxed max-w-lg mb-8">
-                    Bring your discipline to life. Spin, zoom, and interact with the Antigravity core
-                    to unlock immersive analytics and elite flow-state tracking.
+                    Get an immersive, interactable birds-eye view of your progress. Track your streaks, monitor biological markers, and gamify your discipline with Antigravity.
                   </p>
 
                   <div className="flex gap-4 items-center">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}
+                      className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 hover:bg-indigo-500/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_25px_rgba(99,102,241,0.4)]"
+                      role="button"
+                      aria-label="Interact"
+                    >
                       <Zap className="w-6 h-6 text-indigo-400" />
-                    </div>
-                    <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/20 flex items-center justify-center border border-fuchsia-500/30">
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}
+                      className="w-12 h-12 rounded-2xl bg-fuchsia-500/20 flex items-center justify-center border border-fuchsia-500/30 hover:bg-fuchsia-500/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 shadow-[0_0_15px_rgba(217,70,239,0.2)] hover:shadow-[0_0_25px_rgba(217,70,239,0.4)]"
+                      role="button"
+                      aria-label="Monitor Activity"
+                    >
                       <Activity className="w-6 h-6 text-fuchsia-400" />
-                    </div>
+                    </motion.div>
                   </div>
                 </motion.div>
               </div>
