@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { CardStack, CardStackItem } from "@/components/ui/card-stack";
 import GlassmorphismTrustHero from "@/components/ui/glassmorphism-trust-hero";
+import { GradientButton } from "@/components/ui/gradient-button";
 
 const cardStackItems: CardStackItem[] = [
   {
@@ -136,9 +137,11 @@ export default function Home() {
           <Link href="/login" className="px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-white/10 text-neutral-300 hover:text-white transition-all">
             Sign In
           </Link>
-          <Link href="/login" className="px-6 py-2.5 rounded-xl text-sm font-bold bg-white text-black hover:bg-neutral-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95 flex items-center gap-2">
-            Get Started <ChevronRight className="w-4 h-4" />
-          </Link>
+          <GradientButton asChild variant="variant" className="px-6 py-2.5 rounded-xl text-sm min-w-0 h-auto font-bold flex items-center gap-2">
+            <Link href="/login">
+              Get Started <ChevronRight className="w-4 h-4" />
+            </Link>
+          </GradientButton>
         </motion.div>
       </nav>
 
