@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { CardStack, CardStackItem } from "@/components/ui/card-stack";
 import GlassmorphismTrustHero from "@/components/ui/glassmorphism-trust-hero";
+import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import { GradientButton } from "@/components/ui/gradient-button";
 
 const cardStackItems: CardStackItem[] = [
@@ -145,10 +146,10 @@ export default function Home() {
         </motion.div>
       </nav>
 
-      {/* Premium Glassmorphism Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-4 md:px-6 pt-6 pb-24 z-10 relative">
+      {/* Geometric Absolute Flow Header */}
+      <HeroGeometric />
 
-        <GlassmorphismTrustHero />
+      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-4 md:px-6 pt-6 pb-24 z-10 relative">
 
         {/* 3D Interactive Demo Dashboard Viewport */}
         <motion.div
