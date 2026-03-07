@@ -134,7 +134,7 @@ export default function Home() {
                     Visualize <br />Your Habits
                   </h2>
                   <p className="text-lg md:text-xl text-neutral-400 font-medium leading-relaxed max-w-lg mb-8">
-                    Get an immersive, interactable birds-eye view of your progress. Track your streaks, monitor biological markers, and gamify your discipline with Antigravity.
+                    Being ready is a myth. You start, you suck, you figure it out, and you get better.
                   </p>
 
                   <div className="flex gap-4 items-center">
